@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BalconyNode Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <div class="logo">
+                <i class="fa-solid fa-leaf"></i>
+                <h1>Eco Node</h1>
+            </div>
+            <div class="status-indicator">
+                <div class="dot pulsing"></div>
+                <span id="connection-status">Live</span>
+            </div>
+        </header>
+
+        <main>
+            <div class="widgets-grid">
+                <!-- Soil Moisture -->
+                <div class="widget card glass">
+                    <div class="widget-header">
+                        <i class="fa-solid fa-droplet icon-soil"></i>
+                        <h3>Soil Moisture</h3>
+                    </div>
+                    <div class="widget-body">
+                        <h2 id="soil-moisture">--<span class="unit">%</span></h2>
+                        <div class="progress-bar">
+                            <div class="progress-fill soil-fill" id="soil-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Water Tank Level -->
+                <div class="widget card glass">
+                    <div class="widget-header">
+                        <i class="fa-solid fa-water icon-water"></i>
+                        <h3>Water Tank</h3>
+                    </div>
+                    <div class="widget-body">
+                        <h2 id="water-tank">--<span class="unit">%</span></h2>
+                        <div class="progress-bar">
+                            <div class="progress-fill water-fill" id="water-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Environment -->
+                <div class="widget card glass">
+                    <div class="widget-header">
+                        <i class="fa-solid fa-temperature-half icon-temp"></i>
+                        <h3>Environment</h3>
+                    </div>
+                    <div class="widget-body multi-stat">
+                        <div class="stat">
+                            <span class="label">Temp</span>
+                            <h2 id="temperature">--<span class="unit">°C</span></h2>
+                        </div>
+                        <div class="stat divider"></div>
+                        <div class="stat">
+                            <span class="label">Humid</span>
+                            <h2 id="humidity">--<span class="unit">%</span></h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Light & Pump Status -->
+                <div class="widget card glass">
+                    <div class="widget-header">
+                        <i class="fa-solid fa-sun icon-light" id="light-icon"></i>
+                        <h3>Status</h3>
+                    </div>
+                    <div class="widget-body multi-stat">
+                        <div class="stat">
+                            <span class="label">Light</span>
+                            <h2 id="light-status">--</h2>
+                        </div>
+                        <div class="stat divider"></div>
+                        <div class="stat">
+                            <span class="label">Pump</span>
+                            <h2 id="pump-status" class="status-badge">--</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-section card glass">
+                <div class="chart-header">
+                    <h3>Historical Trends</h3>
+                    <div class="chart-legend">
+                        <span class="legend-item"><span class="dot" style="background:var(--water)"></span> Tank</span>
+                        <span class="legend-item"><span class="dot" style="background:var(--soil)"></span> Soil</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="historyChart"></canvas>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
