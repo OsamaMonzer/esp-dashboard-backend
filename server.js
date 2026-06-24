@@ -6,12 +6,27 @@ const cors = require('cors');
 const app = express();
 const port = 3000;
 
+// ── Hardcoded credentials ────────────────────────────────────────
+const USER_EMAIL    = 'osamamonzer@gmail.com';
+const USER_PASSWORD = 'test123';
+// ──────────────────────────────────────────────────────────────
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public')); // Serve the dashboard frontend
+app.use(express.static('public'));
 
-let clients = []; // Array to hold connected real-time clients
+// ── Login endpoint ────────────────────────────────────────────
+app.post('/api/login', (req, res) => {
+  const { email, password } = req.body;
+  if (email === USER_EMAIL && password === USER_PASSWORD) {
+    return res.status(200).json({ message: 'Login successful' });
+  }
+  return res.status(401).json({ error: 'Invalid credentials' });
+});
+// ──────────────────────────────────────────────────────────────
+
+let clients = [];
 
 // Database Setup
 const db = new sqlite3.Database('./sensor_data.sqlite', (err) => {
@@ -37,15 +52,7 @@ app.post('/api/data', (req, res) => {
   const data = req.body;
   console.log('\n[INFO] Received new data:', data);
 
-  const {
-    device_id,
-    soil_moisture,
-    light_intensity,
-    temperature,
-    humidity,
-    water_tank_level,
-    pump_status
-  } = data;
+  const { device_id, soil_moisture, light_intensity, temperature, humidity, water_tank_level, pump_status } = data;
 
   if (!device_id) {
     return res.status(400).json({ error: 'device_id is required' });
@@ -64,25 +71,19 @@ app.post('/api/data', (req, res) => {
     }
     console.log(`[SUCCESS] Data saved with ID: ${this.lastID}`);
     res.status(200).json({ message: 'Data logged successfully', id: this.lastID });
-    
-    // Push real-time event to all connected dashboard clients
-    // Use the current server timestamp for the live point
+
     const liveData = { ...data, timestamp: new Date().toISOString() };
     clients.forEach(client => client.write(`data: ${JSON.stringify(liveData)}\n\n`));
   });
 });
 
-// --- Server-Sent Events Endpoint (Live Streaming) ---
 app.get('/api/stream', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
-  res.flushHeaders(); 
-
+  res.flushHeaders();
   res.write(`data: {"status": "connected"}\n\n`);
-
   clients.push(res);
-
   req.on('close', () => {
     clients = clients.filter(client => client !== res);
   });
@@ -91,14 +92,12 @@ app.get('/api/stream', (req, res) => {
 app.get('/api/latest', (req, res) => {
   const sql = `SELECT * FROM sensor_readings ORDER BY timestamp DESC LIMIT 50`;
   db.all(sql, [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
+    if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
 });
 
-app.listen(port, "0.0.0.0", () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`\n=========================================`);
   console.log(`🚀 Server running on port ${port}`);
   console.log(`=========================================`);
